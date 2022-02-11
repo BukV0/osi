@@ -7,8 +7,6 @@
 #define CANT_OPEN_ERROR 3
 
 int main(int argc, char* argv[]){
-    //printf("%d", argc);
-    printf("test.c pid %d\n",getpid());
      FILE* file;                                              // file descriptor
         if ((file=fopen("info.txt", "w"))==NULL)                 // open file for write. If it isn't exist, create
         {
@@ -23,6 +21,6 @@ int main(int argc, char* argv[]){
             } // if file is accesseble, rewrite information in it to our
             fclose(file);
         }
-
+    execl("./prog",NULL);
     return 0;
 }

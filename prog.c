@@ -73,24 +73,53 @@ int Search_in_File(char *fname, char *str) {
 }
 
 int main(){
-        // rewrite the KeyboardInterrupt signal handler
-   signal(SIGINT,interrupt_handler);
-
+    signal(SIGINT,interrupt_handler);
     char filename[256]; 
-    // file name parameter
     char template[256];
-    while(1){
-    template[0] = 'f';
-    template[1] = ' ';
+    template[0] = 'e';
+    template[1] = 'w';
     get_correct_file_name(&filename);
-    int k = Search_in_File(filename,template);
-    printf("a.c pid %d\n",getpid());
-    char *argg[] = {arr,NULL};
-    execv("./tes",argg);
+    int pipe_descriptors[2];                           // pipe IN/OUT descriptors
+    pipe(pipe_descriptors); 
+     if (fork() == 0)                                   // make parallel process
+    {
+        // child process
+        // we perform some actions in it
+        close(pipe_descriptors[0]);  // close pipe IN descriptor in child process because there is no need in it
+        close(1);                    // close STDOUT descriptors
+        dup2(pipe_descriptors[1], 1);// copy pipe OUT descriptor into the STDOUT place. All STDOUT information will be in pipe.
+
+        printf("%d\n", 0);           // beautifier
+        execl("/usr/bin/grep",  "grep",template, filename, 0);
     }
-   
+    else
+    {
+        wait();                                                  // wait untill child process die
+        int fns = 0;
+        char buffer[256];                                       // information buffer
+        memset(&buffer, 0, 256);
+        ssize_t numRead;
+        //dup2(1,pipe_descriptors[1]);
+        read(pipe_descriptors[0], buffer, 256);
+        // while (1) {
+        //          numRead = read(pipe_descriptors[0], buffer, 256);
+        //         if (numRead == -1) {
+        //             perror("read");
+        //             exit(EXIT_FAILURE);
+        //         }
+        //         if (numRead == 0){
+        //             break;
+        //         }
+        //         fns++;
+        //         add_into_array(buffer,fns);
+        // }
+        //char *argg[] = {arr,NULL};
+        char *argg[] = {buffer,NULL};
+        execv("./tes",argg);
+    }
 
 }
+
 
 /*
 memset
